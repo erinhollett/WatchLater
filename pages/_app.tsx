@@ -1,6 +1,14 @@
-import "@/styles/globals.css";
 import type { AppProps } from "next/app";
+import "../styles/globals.css";
+import Navbar from "../components/Navbar";
 
-export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+export default function MyApp({ Component, pageProps }: AppProps) {
+  return (
+    <>
+      <Navbar />
+      <main style={{ padding: "1.5rem" }}>
+        <Component {...pageProps} />
+      </main>
+    </>
+  );
 }
