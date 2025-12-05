@@ -2,15 +2,14 @@ import Link from "next/link";
 
 export default function Navbar() {
   return (
-    <nav className="navbar"
-    >
-      <h1 style={{ margin: 0, fontSize: "1.25rem" }}>WatchLater</h1>
+    <nav className="w-full bg-blue-900 text-white flex justify-between items-center px-6 py-4 shadow-md">
+      <h1 className="text-xl font-bold">WatchLater</h1>
 
-      <div style={{ display: "flex", gap: "1rem" }}>
-        <Link href="/">Home</Link>
-        <Link href="/search">Search</Link>
-        <Link href="/details">Movie Details</Link>
-        <Link href="/watchlist">Watchlist</Link>
+      <div className="flex gap-4 text-lg">
+        <Link href="/" className="hover:text-yellow-300 transition">Home</Link>
+        <Link href="/search" className="hover:text-yellow-300 transition">Search</Link>
+        <Link href="/details" className="hover:text-yellow-300 transition">Movie Details</Link>
+        <Link href="/watchlist" className="hover:text-yellow-300 transition">Watchlist</Link>
       </div>
     </nav>
   );
