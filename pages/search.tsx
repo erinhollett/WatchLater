@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import MovieGrid from "../components/MovieGrid";
 import SearchBar from "../components/SearchBar";
 import type { Movie } from "../data/movies";
+import { MOVIES as LOCAL_MOVIES } from "../data/movies";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -27,12 +28,17 @@ export default function SearchPage() {
         setIsLoading(true);
         setError(null);
 
-        const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+        const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY; //TMDB API
 
+        // Fallback for testing where user does not have an API key
         if (!apiKey) {
-          throw new Error(
-            "TMDB API key is missing. Make sure NEXT_PUBLIC_TMDB_API_KEY is set in .env.local."
+          const localResults: Movie[] = LOCAL_MOVIES.filter((m) =>
+            m.title.toLowerCase().includes(trimmed.toLowerCase())
           );
+
+          setMovies(localResults);
+          setIsLoading(false);
+          return;
         }
 
         const url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=en-US&include_adult=false&query=${encodeURIComponent(
