@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import MovieGrid from "../components/MovieGrid";
+import SearchBar from "../components/SearchBar";
 import type { Movie } from "../data/movies";
 
 export default function SearchPage() {
@@ -100,28 +101,7 @@ export default function SearchPage() {
         Search Movies
       </h2>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Type a movie title..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          style={{
-            width: "100%",
-            maxWidth: "400px",
-            padding: "0.5rem 0.75rem",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-            fontSize: "1rem",
-          }}
-        />
-      </div>
+      <SearchBar value={query} onChange={setQuery} />
 
       {isLoading && <p style={{ textAlign: "center" }}>Loading...</p>}
       {error && (
