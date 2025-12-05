@@ -7,6 +7,7 @@ import type { Movie } from "../data/movies";
 export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [watchlist, setWatchlist] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,6 +75,19 @@ export default function SearchPage() {
     fetchMovies();
   }, [query]);
 
+  const handleToggleWatchlist = (movie: Movie) => {
+    setWatchlist((prev) => {
+      const exists = prev.some((m) => m.id === movie.id);
+      if (exists) {
+        return prev.filter((m) => m.id !== movie.id);
+      }
+      return [...prev, movie];
+    });
+  };
+
+  const isInWatchlist = (id: number) =>
+    watchlist.some((m) => m.id === id);
+
   return (
     <div
       style={{
@@ -114,7 +128,13 @@ export default function SearchPage() {
         <p style={{ textAlign: "center", color: "red" }}>{error}</p>
       )}
 
-      {query.trim() && !isLoading && !error && <MovieGrid movies={movies} />}
+      {query.trim() && !isLoading && !error && (
+        <MovieGrid
+          movies={movies}
+          onToggleWatchlist={handleToggleWatchlist}
+          isInWatchlist={isInWatchlist}
+        />
+      )}
     </div>
   );
 }
