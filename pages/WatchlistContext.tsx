@@ -5,7 +5,7 @@ import {
   useEffect,
   ReactNode
 } from "react";
-import { MOVIES } from "../data/movies";
+import { MOVIES, Movie } from "../data/movies";
 
 
 type WatchlistContextType = {
@@ -13,6 +13,7 @@ type WatchlistContextType = {
   toggle: (id: number) => void;
   lastUnselected: string;
   showMessage: boolean;
+  getMovieData: (id: number) => Movie | undefined;
 };
 
 
@@ -25,6 +26,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
 
   //State to store list of movies in watchlist
   const [checked, setChecked] = useState<number[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   //Stores title of last removed movie for message
   const [lastUnselected, setLastUnselected] = useState("");
@@ -38,19 +40,20 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
       if (stored) {
         setChecked(JSON.parse(stored));
       } else {
-        setChecked(MOVIES.map(m => m.id)); 
+        setChecked(MOVIES.map(m => m.id));
       }
+      setIsInitialized(true);
     }
   }, []);
 
   //Whenever checked changes, convert array of ID's to JSON, and save to localStorage
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && isInitialized) {
       localStorage.setItem(LOCAL_KEY, JSON.stringify(checked));
     }
-  }, [checked]);
+  }, [checked, isInitialized]);
 
-  
+
   const toggle = (id: number) => {
     setChecked(prev => {
       if (prev.includes(id)) {
@@ -68,10 +71,12 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
       return [...prev, id];
     });
   };
-
+  const getMovieData = (id: number) => {
+    return MOVIES.find(m => m.id === id);
+  };
   return (
     <WatchlistContext.Provider
-      value={{ checked, toggle, lastUnselected, showMessage }}
+      value={{ checked, toggle, lastUnselected, showMessage, getMovieData }}
     >
       {children}
     </WatchlistContext.Provider>
