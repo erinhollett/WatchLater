@@ -13,6 +13,7 @@ type WatchlistContextType = {
   toggle: (id: number) => void;
   lastUnselected: string;
   showMessage: boolean;
+  getMovieData: (id: number) => Movie | undefined; 
 };
 
 
@@ -68,7 +69,9 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
       return [...prev, id];
     });
   };
-
+const getMovieData = (id: number) => {
+  return MOVIES.find(m => m.id === id);
+};
   return (
     <WatchlistContext.Provider
       value={{ checked, toggle, lastUnselected, showMessage }}
