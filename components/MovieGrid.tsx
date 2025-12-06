@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import type { Movie } from "../data/movies";
 import { Heart } from "lucide-react";
 
@@ -46,42 +47,44 @@ export default function MovieGrid({
             }}
           >
             <div>
-              <div
-                style={{
-                  width: "100%",
-                  aspectRatio: "2 / 3",
-                  marginBottom: "0.5rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  overflow: "hidden",
-                }}
-              >
-                <img
-                  src={movie.poster}
-                  alt={movie.title}
+              <Link href={`/details/${movie.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div
                   style={{
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    objectFit: "cover",
+                    width: "100%",
+                    aspectRatio: "2 / 3",
+                    marginBottom: "0.5rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                    cursor: "pointer",
                   }}
-                />
-              </div>
-              <div>
-                <strong>{movie.title}</strong>
-                <div style={{ fontSize: "0.9rem", color: "#555" }}>
-                  {movie.year}
+                >
+                  <img
+                    src={movie.poster}
+                    alt={movie.title}
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
                 </div>
-              </div>
+                <div>
+                  <strong>{movie.title}</strong>
+                  <div style={{ fontSize: "0.9rem", color: "#555" }}>
+                    {movie.year}
+                  </div>
+                </div>
+              </Link>
             </div>
 
             <button
               onClick={() => onToggleWatchlist(movie)}
-              className={`inline-flex items-center justify-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-all ${
-                inWatchlist
+              className={`inline-flex items-center justify-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-all ${inWatchlist
                   ? "bg-red-500 hover:bg-red-600 text-white"
                   : "bg-zinc-200 hover:bg-zinc-300 text-black"
-              }`}
+                }`}
             >
               <Heart
                 size={14}
