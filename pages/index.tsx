@@ -1,6 +1,7 @@
 // pages/index.tsx
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useWatchlist } from "./WatchlistContext";
 
 export default function Home() {
@@ -14,7 +15,7 @@ export default function Home() {
   ];
 
   const [carouselIndex, setCarouselIndex] = useState(0);
-  const [modalMovie, setModalMovie] = useState<any>(null);
+
 
   const changePoster = () => {
     const random = posters[Math.floor(Math.random() * posters.length)];
@@ -61,15 +62,16 @@ export default function Home() {
             <div
               key={movie.id}
               className="movie-card"
-              onClick={() => setModalMovie(movie)}
             >
-              <Image
-                src={movie.poster}
-                alt={movie.title}
-                width={220}
-                height={320}
-              />
-              <p className="card-title">{movie.title}</p>
+              <Link href={`/details/${movie.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Image
+                  src={movie.poster}
+                  alt={movie.title}
+                  width={220}
+                  height={320}
+                />
+                <p className="card-title">{movie.title}</p>
+              </Link>
               <button
                 className="watch-btn"
                 onClick={(e) => {
@@ -83,21 +85,7 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Modal */}
-        {modalMovie && (
-          <div className="modal-bg" onClick={() => setModalMovie(null)}>
-            <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-              <Image
-                src={modalMovie.poster}
-                alt={modalMovie.title}
-                width={300}
-                height={430}
-              />
-              <h3>{modalMovie.title}</h3>
-              <button className="close-btn" onClick={() => setModalMovie(null)}>Close</button>
-            </div>
-          </div>
-        )}
+
       </main>
 
       {/* Footer */}
