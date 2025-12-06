@@ -1,6 +1,6 @@
 # WatchLater – CPAN-144-RNA Group 6
 
-WatchLater ia a website that lets users discover and view details about movies, and save movies to their personal watchlist. It integrates data from the TMDb (The Movie Database) API to display accurate movie metadata, posters, and search results.
+WatchLater is a website that lets users discover and view details about movies, and save movies to their personal watchlist. It integrates data from the TMDb (The Movie Database) API to display accurate movie metadata, posters, and search results.
 It demonstrates multi-page routing, modular React components, basic state management, and integration with the TMDB (The Movie Database) search API.
 
 ---
@@ -21,7 +21,8 @@ It demonstrates multi-page routing, modular React components, basic state manage
 /pages
   |_ index.tsx        # Home page – random poster scroll
   |_ search.tsx       # Movie search page (TMDB integration)
-  |_ details.tsx      # Dynamic movie details example
+  |_ details/
+      |_ [id].tsx     # Dynamic movie details page
   |_ watchlist.tsx    # Local watchlist based on MOVIES data
 
 /components
@@ -34,3 +35,4 @@ It demonstrates multi-page routing, modular React components, basic state manage
 
 /styles
   |_ globals.css      # Global styles, layout classes
+```
