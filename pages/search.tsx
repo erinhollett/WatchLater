@@ -10,7 +10,6 @@ import { useWatchlist } from "./WatchlistContext";
 export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState<Movie[]>([]);
-  const { checked, toggle } = useWatchlist(); // Now using unified watchlist
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
