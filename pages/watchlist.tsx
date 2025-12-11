@@ -1,4 +1,4 @@
-import { useWatchlist } from "../pages/WatchlistContext";
+import { useWatchlist } from "../context/WatchlistContext";
 import { MOVIES } from "../data/movies";
 import Link from "next/link";
 

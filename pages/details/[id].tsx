@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MOVIES } from "../../data/movies";
-import { useWatchlist } from "../WatchlistContext";
+import { useWatchlist } from "../../context/WatchlistContext";
 import { Heart, ArrowLeft } from "lucide-react";
 
 type MovieDetail = {

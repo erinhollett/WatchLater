@@ -1,7 +1,7 @@
 import type { AppProps } from "next/app";
 import "../styles/globals.css";
 import Navbar from "../components/Navbar";
-import { WatchlistProvider } from "../pages/WatchlistContext";
+import { WatchlistProvider } from "../context/WatchlistContext";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (

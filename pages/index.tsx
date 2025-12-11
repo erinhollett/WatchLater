@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useWatchlist } from "./WatchlistContext";
+import { useWatchlist } from "../context/WatchlistContext";
 
 export default function Home() {
   const { checked, toggle } = useWatchlist();

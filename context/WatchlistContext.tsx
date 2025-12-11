@@ -90,3 +90,5 @@ export function useWatchlist() {
   if (!ctx) throw new Error("useWatchlist must be used inside WatchlistProvider");
   return ctx;
 }
+
+export default WatchlistProvider;

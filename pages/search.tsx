@@ -5,7 +5,7 @@ import MovieGrid from "../components/MovieGrid"; // Movie cards
 import SearchBar from "../components/SearchBar";
 import type { Movie } from "../data/movies";
 import { MOVIES as LOCAL_MOVIES } from "../data/movies";
-import { useWatchlist } from "./WatchlistContext";
+import { useWatchlist } from "../context/WatchlistContext";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
