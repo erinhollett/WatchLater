@@ -8,7 +8,6 @@ export default function Navbar() {
       <div className="flex gap-4 text-lg">
         <Link href="/" className="hover:text-yellow-300 transition">Home</Link>
         <Link href="/search" className="hover:text-yellow-300 transition">Search</Link>
-        <Link href="/details" className="hover:text-yellow-300 transition">Movie Details</Link>
         <Link href="/watchlist" className="hover:text-yellow-300 transition">Watchlist</Link>
       </div>
     </nav>

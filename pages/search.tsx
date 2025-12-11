@@ -4,12 +4,13 @@ import React, { useEffect, useState } from "react";
 import MovieGrid from "../components/MovieGrid"; // Movie cards
 import SearchBar from "../components/SearchBar";
 import type { Movie } from "../data/movies";
-import { MOVIES as LOCAL_MOVIES } from "../data/movies"; // Fallback (if there's no API key)
-import { useWatchlist } from "../pages/WatchlistContext"; // Global Context
+import { MOVIES as LOCAL_MOVIES } from "../data/movies";
+import { useWatchlist } from "./WatchlistContext";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
-  const [movies, setMovies] = useState<Movie[]>([]); // Results
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const { checked, toggle } = useWatchlist(); // Now using unified watchlist
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,10 +89,9 @@ export default function SearchPage() {
 
   // Calls toggle(id) from WatchlistContext
   const handleToggleWatchlist = (movie: Movie) => {
-    toggle(movie.id);
+    toggle(movie.id); // Now syncs with global watchlist
   };
 
-  // Checks if the movie ID is in the global "checked" array
   const isInWatchlist = (id: number) => checked.includes(id);
 
   return (
