@@ -1,14 +1,25 @@
 // Made by: Erin Hollett
 
 import React, { useEffect, useState } from "react";
-import MovieGrid from "../components/MovieGrid"; // Movie cards
+import dynamic from "next/dynamic";
 import SearchBar from "../components/SearchBar";
 import type { Movie } from "../data/movies";
 import { MOVIES as LOCAL_MOVIES } from "../data/movies";
 import { useWatchlist } from "../context/WatchlistContext";
 
+// LAZY-LOAD and CODE SPLITING:
+// MovieGrid component only gets downloaded when we show results
+const MovieGrid = dynamic(() => import("../components/MovieGrid"), {
+  loading: () => (
+    <p style={{ textAlign: "center", marginTop: "1rem" }}>
+      Loading movies...
+    </p>
+  ),
+});
+
 export default function SearchPage() {
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState(""); // Debounced Input
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,15 +27,27 @@ export default function SearchPage() {
   // Unified watchlist from context
   const { checked, toggle } = useWatchlist();
 
+  // DEBOUNCE
+  // wait 400ms after user stops typing before updating the query
   useEffect(() => {
     const trimmed = query.trim();
+    const handle = setTimeout(() => {
+      setDebouncedQuery(trimmed);
+    }, 400);
+
+    return () => clearTimeout(handle);
+  }, [query]);
 
     // If the input is empty, clear results and don't call the API:
-    if (!trimmed) {
-      setMovies([]);
-      setError(null);
-      return;
-    }
+    useEffect(() => {
+      if (!debouncedQuery) {
+        setMovies([]);
+        setError(null);
+        setIsLoading(false);
+        return;
+      }
+
+    const controller = new AbortController();
 
     const fetchMovies = async () => {
       try {
@@ -36,7 +59,7 @@ export default function SearchPage() {
         // FALLBACK (for people without a TMDB key) to movies.ts data:
         if (!apiKey) {
           const localResults: Movie[] = LOCAL_MOVIES.filter((m) =>
-            m.title.toLowerCase().includes(trimmed.toLowerCase())
+            m.title.toLowerCase().includes(debouncedQuery.toLowerCase())
           );
 
           setMovies(localResults);
@@ -46,10 +69,10 @@ export default function SearchPage() {
 
         // TMDB REQUEST: 
         const url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=en-US&include_adult=false&query=${encodeURIComponent(
-          trimmed
+          debouncedQuery
         )}`;
 
-        const res = await fetch(url); // call TMDB
+        const res = await fetch(url, { signal: controller.signal });
 
         if (!res.ok) {
           throw new Error(`TMDB request failed with status ${res.status}`);
@@ -84,14 +107,17 @@ export default function SearchPage() {
     };
 
     fetchMovies();
-  }, [query]);
+
+    return () => controller.abort();
+  }, [debouncedQuery]);
+
 
   // Calls toggle(id) from WatchlistContext
   const handleToggleWatchlist = (movie: Movie) => {
     toggle(movie.id); // Now syncs with global watchlist
   };
 
-  const isInWatchlist = (id: number) => checked.includes(id);
+  const isInWatchlist = (id: number) => checked.includes(id); 
 
   return (
     <div
