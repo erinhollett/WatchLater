@@ -5,11 +5,12 @@ import MovieGrid from "../components/MovieGrid";
 import SearchBar from "../components/SearchBar";
 import type { Movie } from "../data/movies";
 import { MOVIES as LOCAL_MOVIES } from "../data/movies";
+import { useWatchlist } from "./WatchlistContext";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [watchlist, setWatchlist] = useState<Movie[]>([]);
+  const { checked, toggle } = useWatchlist(); // Now using unified watchlist
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,17 +84,10 @@ export default function SearchPage() {
   }, [query]);
 
   const handleToggleWatchlist = (movie: Movie) => {
-    setWatchlist((prev) => {
-      const exists = prev.some((m) => m.id === movie.id);
-      if (exists) {
-        return prev.filter((m) => m.id !== movie.id);
-      }
-      return [...prev, movie];
-    });
+    toggle(movie.id); // Now syncs with global watchlist
   };
 
-  const isInWatchlist = (id: number) =>
-    watchlist.some((m) => m.id === id);
+  const isInWatchlist = (id: number) => checked.includes(id);
 
   return (
     <div
