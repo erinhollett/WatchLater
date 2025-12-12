@@ -3,8 +3,15 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useWatchlist } from "../context/WatchlistContext";
+import MovieGrid from "../components/MovieGrid";
+import type { Movie } from "../data/movies";
+import { mapTmdbResultsToMovies } from "../lib/tmdb";
 
-export default function Home({ posters }: any) {
+type HomeProps = {
+  posters: Movie[]; // same Movie type used by MovieGrid
+};
+
+export default function Home({ posters }: HomeProps) {
   const { checked, toggle } = useWatchlist();
 
   const [carouselIndex, setCarouselIndex] = useState(0);
@@ -14,22 +21,23 @@ export default function Home({ posters }: any) {
     setCarouselIndex(posters.indexOf(random));
   };
 
-  const addToWatchlist = (movie: any) => {
-    if (!checked.includes(movie.id)) {
-      toggle(movie.id);
-    }
-  };
-
   const nextSlide = () =>
     setCarouselIndex((prev) => (prev + 1) % posters.length);
 
   const prevSlide = () =>
     setCarouselIndex((prev) => (prev - 1 + posters.length) % posters.length);
 
+  // Reuse the same toggle / isInWatchlist logic as Search page
+  const handleToggleWatchlist = (movie: Movie) => {
+    toggle(movie.id); // add or remove from global watchlist
+  };
+
+  const isInWatchlist = (id: number) => checked.includes(id);
+
   return (
     <div className="home-container">
       <main className="home-main">
-        <h1 className="home-title">Welcome to Movie Hub</h1>
+        <h1 className="home-title">Welcome to WatchLater</h1>
 
         {/* Carousel */}
         <div className="carousel">
@@ -44,7 +52,12 @@ export default function Home({ posters }: any) {
               width={250}
               height={380}
             />
-            <p>{posters[carouselIndex].title}</p>
+              <p>
+                {posters[carouselIndex].title}{" "}
+                {posters[carouselIndex].year && (
+                  <>({posters[carouselIndex].year})</>
+                )}
+              </p>
           </div>
 
           <button onClick={nextSlide} className="carousel-btn">
@@ -59,58 +72,40 @@ export default function Home({ posters }: any) {
         {/* Featured Grid */}
         <h2 className="section-title">Featured Movies</h2>
 
-        <div className="grid-box">
-          {posters.map((movie: any) => (
-            <div key={movie.id} className="movie-card">
-              <Link
-                href={`/details/${movie.id}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <Image
-                  src={movie.poster}
-                  alt={movie.title}
-                  width={220}
-                  height={320}
-                />
-                <p className="card-title">{movie.title}</p>
-              </Link>
-
-              <button
-  className="star-btn"
-  onClick={(e) => {
-    e.stopPropagation();
-    addToWatchlist(movie);
-  }}
->
-  {checked.includes(movie.id) ? "✔ Starred" : "⭐ Star This Movie"}
-</button>
-
-            </div>
-          ))}
-        </div>
+        <MovieGrid
+          movies={posters}
+          onToggleWatchlist={handleToggleWatchlist}
+          isInWatchlist={isInWatchlist}
+        />
       </main>
 
       <footer className="footer">
-        © 2025 MovieHub — All Rights Reserved
+        © 2025 WatchLater — All Rights Reserved
       </footer>
     </div>
   );
 }
 
 export async function getServerSideProps() {
-  const API_KEY = process.env.MOVIE_API_KEY; 
+  const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY; 
 
   const res = await fetch(
-    `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}`
+    `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US`
   );
+
+  // Error handling:
+  if (!res.ok) {
+    console.error("TMDB popular request failed with status:", res.status);
+    return { props: { posters: [] } };
+  }
 
   const data = await res.json();
 
-  const posters = data.results.slice(0, 10).map((m: any) => ({
-    id: m.id,
-    title: `${m.title} - ${m.release_date?.slice(0, 4)}`,
-    poster: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
-  }));
+  // Reuse same TMDB -> Movie mapping helper, then take first 10 results
+  const posters: Movie[] = mapTmdbResultsToMovies(data.results ?? []).slice(
+    0,
+    10
+  );
 
   return { props: { posters } };
 }
