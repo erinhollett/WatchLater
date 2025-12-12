@@ -37,7 +37,7 @@ export default function Home({ posters }: HomeProps) {
   return (
     <div className="home-container">
       <main className="home-main">
-        <h1 className="home-title">Welcome to WatchLater</h1>
+        <h1 className="home-title" style={{ color: "#fff" }}>Welcome to WatchLater</h1>
 
         {posters.length > 0 && (
         <div className="carousel">
@@ -71,15 +71,28 @@ export default function Home({ posters }: HomeProps) {
         </button>
 
         {/* Featured Grid */}
-        <h2 className="section-title">Featured Movies</h2>
+        <section
+          style={{
+            maxWidth: "1100px",
+            margin: "3rem auto 0",
+            padding: "2rem 1.5rem 3rem",
+            backgroundColor: "#ffffff",
+            borderRadius: "16px",
+          }}
+        >
+          <h2
+            className="section-title"
+            style={{ marginBottom: "1.5rem", textAlign: "center", color: "#000"}}
+          >
+            Featured Movies
+          </h2>
 
-      <div className="grid-box">
-        <MovieGrid
-          movies={posters}
-          onToggleWatchlist={handleToggleWatchlist}
-          isInWatchlist={isInWatchlist}
-        />
-      </div>
+          <MovieGrid
+            movies={posters}
+            onToggleWatchlist={handleToggleWatchlist}
+            isInWatchlist={isInWatchlist}
+          />
+        </section>
       </main>
 
       <footer className="footer">
