@@ -4,18 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useWatchlist } from "../context/WatchlistContext";
 
-export default function Home() {
+export default function Home({ posters }: any) {
   const { checked, toggle } = useWatchlist();
 
-  const posters = [
-    { id: 1, title: "The Shawshank Redemption - 2010", poster: "/images/the-shawshank-redemption.png" },
-    { id: 2, title: " The Godfather - 1972 ", poster: "/images/the-godfather.png" },
-    { id: 3, title: "Spirited Away - 2001", poster: "/images/spirited-away.png" },
-    { id: 4, title: "Pulp Fiction - 1994", poster: "/images/pulp-fiction.png" },
-  ];
-
   const [carouselIndex, setCarouselIndex] = useState(0);
-
 
   const changePoster = () => {
     const random = posters[Math.floor(Math.random() * posters.length)];
@@ -28,8 +20,11 @@ export default function Home() {
     }
   };
 
-  const nextSlide = () => setCarouselIndex((prev) => (prev + 1) % posters.length);
-  const prevSlide = () => setCarouselIndex((prev) => (prev - 1 + posters.length) % posters.length);
+  const nextSlide = () =>
+    setCarouselIndex((prev) => (prev + 1) % posters.length);
+
+  const prevSlide = () =>
+    setCarouselIndex((prev) => (prev - 1 + posters.length) % posters.length);
 
   return (
     <div className="home-container">
@@ -38,7 +33,10 @@ export default function Home() {
 
         {/* Carousel */}
         <div className="carousel">
-          <button onClick={prevSlide} className="carousel-btn">◀</button>
+          <button onClick={prevSlide} className="carousel-btn">
+            ◀
+          </button>
+
           <div className="carousel-slide">
             <Image
               src={posters[carouselIndex].poster}
@@ -48,7 +46,10 @@ export default function Home() {
             />
             <p>{posters[carouselIndex].title}</p>
           </div>
-          <button onClick={nextSlide} className="carousel-btn">▶</button>
+
+          <button onClick={nextSlide} className="carousel-btn">
+            ▶
+          </button>
         </div>
 
         <button className="change-btn" onClick={changePoster}>
@@ -57,13 +58,14 @@ export default function Home() {
 
         {/* Featured Grid */}
         <h2 className="section-title">Featured Movies</h2>
+
         <div className="grid-box">
-          {posters.map((movie) => (
-            <div
-              key={movie.id}
-              className="movie-card"
-            >
-              <Link href={`/details/${movie.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          {posters.map((movie: any) => (
+            <div key={movie.id} className="movie-card">
+              <Link
+                href={`/details/${movie.id}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
                 <Image
                   src={movie.poster}
                   alt={movie.title}
@@ -72,24 +74,43 @@ export default function Home() {
                 />
                 <p className="card-title">{movie.title}</p>
               </Link>
+
               <button
-                className="watch-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  addToWatchlist(movie);
-                }}
-              >
-                Add to Watchlist
-              </button>
+  className="star-btn"
+  onClick={(e) => {
+    e.stopPropagation();
+    addToWatchlist(movie);
+  }}
+>
+  {checked.includes(movie.id) ? "✔ Starred" : "⭐ Star This Movie"}
+</button>
+
             </div>
           ))}
         </div>
-
-
       </main>
 
-      {/* Footer */}
-      <footer className="footer">© 2025 MovieHub — All Rights Reserved</footer>
+      <footer className="footer">
+        © 2025 MovieHub — All Rights Reserved
+      </footer>
     </div>
   );
+}
+
+export async function getServerSideProps() {
+  const API_KEY = process.env.MOVIE_API_KEY; 
+
+  const res = await fetch(
+    `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}`
+  );
+
+  const data = await res.json();
+
+  const posters = data.results.slice(0, 10).map((m: any) => ({
+    id: m.id,
+    title: `${m.title} - ${m.release_date?.slice(0, 4)}`,
+    poster: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
+  }));
+
+  return { props: { posters } };
 }
