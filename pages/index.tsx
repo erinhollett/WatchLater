@@ -73,11 +73,13 @@ export default function Home({ posters }: HomeProps) {
         {/* Featured Grid */}
         <h2 className="section-title">Featured Movies</h2>
 
+      <div className="grid-box">
         <MovieGrid
           movies={posters}
           onToggleWatchlist={handleToggleWatchlist}
           isInWatchlist={isInWatchlist}
         />
+      </div>
       </main>
 
       <footer className="footer">
