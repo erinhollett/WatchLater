@@ -39,7 +39,7 @@ export default function Home({ posters }: HomeProps) {
       <main className="home-main">
         <h1 className="home-title">Welcome to WatchLater</h1>
 
-        {/* Carousel */}
+        {posters.length > 0 && (
         <div className="carousel">
           <button onClick={prevSlide} className="carousel-btn">
             ◀
@@ -64,6 +64,7 @@ export default function Home({ posters }: HomeProps) {
             ▶
           </button>
         </div>
+        )}
 
         <button className="change-btn" onClick={changePoster}>
           Change Poster
