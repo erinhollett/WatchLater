@@ -1,15 +1,9 @@
 import { useWatchlist } from "../context/WatchlistContext";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
-//Define Movie
-type Movie = {
-  id: number;
-  title: string;
-  poster_path: string;
-  release_date: string;
-};
-
+import MovieGrid from "../components/MovieGrid";
+import type { Movie } from "../data/movies";
+import { mapTmdbResultsToMovies } from "../lib/tmdb";
 
 export default function WatchlistPage() {
   //Gets information from useWatchlist
@@ -24,17 +18,30 @@ export default function WatchlistPage() {
   //Runs whenever a change is made to the list
   useEffect(() => {
     async function loadMovies() {
+      if (checked.length === 0) {
+        setMovies([]);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
-      //Waits for all movies to load
+
+      // getMovieData returns TMDB-style movie objects (or undefined)
       const results = await Promise.all(
         checked.map((id) => getMovieData(id))
       );
-      setMovies(results.filter((m): m is Movie => m !== undefined));
+
+      const safeResults = results.filter((m): m is any => !!m);
+
+      // Reuse shared TMDB → Movie mapping
+      const mapped = mapTmdbResultsToMovies(safeResults);
+
+      setMovies(mapped);
       setLoading(false);
     }
 
     loadMovies();
-  }, [checked]);
+  }, [checked, getMovieData]);
 
   //Loading message 
   if (loading) {
@@ -44,6 +51,11 @@ export default function WatchlistPage() {
       </div>
     );
   }
+
+  const isInWatchlist = (id: number) => checked.includes(id);
+  const handleToggleWatchlist = (movie: Movie) => {
+    toggle(movie.id); // remove from watchlist here
+  };
 
   return (
     <div
@@ -77,88 +89,11 @@ export default function WatchlistPage() {
           </Link>
         </div>
       ) : (
-        <div
-          className="movie-grid"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-            gap: "2rem",
-          }}
-        >
-          {movies.map((movie) => (
-            <div
-              className="movie-card"
-              key={movie.id}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1rem",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                padding: "1rem",
-                backgroundColor: "#fff",
-              }}
-            >
-              <Link
-                href={`/details/${movie.id}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <img
-                  src={
-                    movie.poster_path
-                      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                      : "/no-poster.png"
-                  }
-                  alt={movie.title}
-                  style={{
-                    width: "100%",
-                    aspectRatio: "2/3",
-                    objectFit: "cover",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                />
-
-                <h3
-                  style={{
-                    marginTop: "0.5rem",
-                    fontSize: "1rem",
-                    fontWeight: "600",
-                    color: "#000",
-                  }}
-                >
-                  {movie.title}
-                </h3>
-
-                <p style={{ fontSize: "0.9rem", color: "#666" }}>
-                  {movie.release_date?.slice(0, 4) ?? ""}
-                </p>
-              </Link>
-
-              <button
-                onClick={() => toggle(movie.id)}
-                style={{
-                  padding: "0.5rem 1rem",
-                  backgroundColor: "#ef4444",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  fontWeight: "500",
-                  transition: "background-color 0.2s",
-                }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#dc2626")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#ef4444")
-                }
-              >
-                Remove from Watchlist
-              </button>
-            </div>
-          ))}
-        </div>
+        <MovieGrid
+          movies={movies}
+          onToggleWatchlist={handleToggleWatchlist}
+          isInWatchlist={isInWatchlist}
+        />
       )}
 
       {showMessage && (
@@ -184,4 +119,3 @@ export default function WatchlistPage() {
     </div>
   );
 }
-

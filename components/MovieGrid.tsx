@@ -7,17 +7,18 @@ type MovieGridProps = {
   movies: Movie[];
   onToggleWatchlist: (movie: Movie) => void;
   isInWatchlist: (id: number) => boolean;
+  mode?: "search" | "watchlist"; // Search page -> Add // Watchlist page -> Remove
 };
 
 export default function MovieGrid({
   movies,
   onToggleWatchlist,
   isInWatchlist,
+  mode = "search", // default
 }: MovieGridProps) {
   if (movies.length === 0) {
     return <p>No movies found.</p>;
   }
-
 
   return (
     <div
@@ -30,6 +31,16 @@ export default function MovieGrid({
     >
       {movies.map((movie) => {
         const inWatchlist = isInWatchlist(movie.id);
+
+        // The button will change depending on the mode
+        const label =
+          mode === "watchlist"
+            ? "Remove from Watchlist"
+            : inWatchlist
+            ? "In Watchlist"
+            : "Watchlist";
+
+        const filled = mode === "watchlist" || inWatchlist;
 
         return (
           <div

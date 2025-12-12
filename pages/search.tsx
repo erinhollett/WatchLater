@@ -6,6 +6,7 @@ import SearchBar from "../components/SearchBar";
 import type { Movie } from "../data/movies";
 import { MOVIES as LOCAL_MOVIES } from "../data/movies";
 import { useWatchlist } from "../context/WatchlistContext";
+import { mapTmdbResultsToMovies } from "../lib/tmdb";
 
 // LAZY-LOAD and CODE SPLITING:
 // MovieGrid component only gets downloaded when we show results
@@ -80,27 +81,14 @@ export default function SearchPage() {
 
         const data = await res.json();
 
-        const mapped: Movie[] = data.results
-          // Filtering a new movie list with "complete" movies (no missing data)
-          .filter(
-            (m: any) =>
-              !m.adult && // No adult films!!
-              m.title && // Must have a title
-              m.poster_path && // Must have a poster
-              m.release_date // Must have a release date
-          )
-          .map((m: any) => ({
-            id: m.id,
-            title: m.title,
-            year: parseInt(m.release_date.slice(0, 4), 10), // Only grabs year
-            poster: `https://image.tmdb.org/t/p/w342${m.poster_path}`,
-          }));
-
+        // Shared helper:
+        const mapped = mapTmdbResultsToMovies(data.results ?? []);
         setMovies(mapped);
-      } catch (err) {
+      } catch (err: any) {
+        if (err?.name === "AbortError") return; // ignore cancelled requests
         console.error(err);
         setError("Error fetching data.");
-        setMovies([]); // Clear movies
+        setMovies([]);
       } finally {
         setIsLoading(false);
       }
@@ -117,7 +105,8 @@ export default function SearchPage() {
     toggle(movie.id); // Now syncs with global watchlist
   };
 
-  const isInWatchlist = (id: number) => checked.includes(id); 
+  const isInWatchlist = (id: number) => checked.includes(id);
+  const hasQuery = debouncedQuery.length > 0;
 
   return (
     <div
@@ -144,6 +133,11 @@ export default function SearchPage() {
           onToggleWatchlist={handleToggleWatchlist}
           isInWatchlist={isInWatchlist}
         />
+      )}
+      {hasQuery && !isLoading && !error && movies.length === 0 && (
+        <p style={{ textAlign: "center", marginTop: "1rem", color: "#555" }}>
+          No movies found. Try a different search term.
+        </p>
       )}
     </div>
   );
